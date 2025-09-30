@@ -15,7 +15,7 @@
   columns: (1fr, 1fr),
   theader[Kernel Basics],
   [*monolithic*: all in kernel],
-  [*microkernel*: user-level servers (context-switch = slower)],
+  [*microkernel*: user-level servers (context-switch)],
   [
     kernel to user:
     + save registers/mem state
@@ -26,9 +26,35 @@
     user to kernel (*trap*):
     + save processor state
     + load kernel state
-    + if interrupt, go to ISR; if syscall, go to kernel space
+    + if interrupt: ISR; if syscall: kernel space
   ],
   table.cell(colspan: 2, [
     *kernel*: bootloader, init hardware, software DS, ISRs
   ])
+)
+
+#table(
+  theader[Processes],
+  [
+```c
+pid_t p = fork();
+int x = 0;
+if (p == 0) {
+  // child
+} else {
+  kill(p, SIGTERM);
+  waitpid(p, NULL, 0);
+}
+printf("both");
+```
+  ],
+  [
+- ```c waitpid(pid, status, opts)```: status = ```c int*``` for process status; opts = flag bit mask
+- ```c x``` has two copies but ```c &x``` has same address in virtual mem
+],
+  [`exec` replaces calling process with new process; `execl` = list, `execv` = array (path, args; `e` = path, args, env; `p` = args, `$PATH`)],
+  [
+- `LDPRELOAD` for shims; ```c int (*original_rand)(void) = dlsym(RTLD_NEXT, "rand")```
+- `-fPIC`: position-independent code; `-ldl`: link against dynamic linker (loading of `.so` at runtime)
+  ]
 )
