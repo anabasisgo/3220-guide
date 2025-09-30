@@ -121,3 +121,43 @@ result = msgrcv(msqidS, &cmbox, sizeof(msgp)-sizeof(long), 1, 0);
     - files, sockets, RPC
   ],
 )
+
+#table(
+  columns: (1fr),
+  theader(colspan: 1)[Threads],
+  [
+    - *thread*\/LWP: can share memory; different from process (1T/P, MT/P)
+    - OS usually has thread scheduler (switch between running and ready-to-run ones); system can have cooperative threads; can feeling slow
+    - interrupt handler $!=$ thread: similar but NOT independently schedulable; runs to completion when triggered (unless higher priority one is present)
+    - *Amdahl's Law*: $T_n = T_1 (s + p/n)", where" s + p = 1$
+    - uses: logically concurrent tasks, BG tasks, use multiple processors, I/O devices, illusion of multiple processors; drawbacks: sync = slow
+    - thread state in thread control block; OS allocates stack, processor registers & per-thread metadata (ID, priority, status) for TCB
+    // TODO: kernel thread info
+  ],
+  [
+```c
+void thread_create(thread, func, arg); // create thread, store info in thread; execute func with arg
+void thread_yield(); // gives up processor (to let others run)
+int thread_join(thread); // wait for thread to finish
+void thread_exit(ret); // finish thread & store value
+```
+  ],
+  [
+- async I/O: single-threaded issues concurrent I/O requests (issue and return immediately)' OS provide result w/ signal handler, memory queue, or kernel memory until syscall
+```c
+int fd = open("pthreadex.c", O_RDONLY); if (fd < 0) perror("open");
+
+struct aiocb aioinfo; aioinfo.aio_buf = malloc(BUFSIZE + 1); aioinfo.aio_fildes = fd; aioinfo.aio_nbytes = BUFSIZE; aioinfo.aio_offset = 0;
+ret = aio_read(&aioinfo);
+while (aio_error(&aioinfo) == EINPROGRESS)
+	// wait
+if ((ret = aio_return(&aioinfo)) > 0) {
+	// use aioinfo.aio_buf
+} else {
+	// read fail
+}
+close(fd);
+```
+- data parallel computing/SIMD (single instruction multiple data)/bulk sync parallel programming: computation to apply in parallel across entire data set; more deterministic; e.g., zero out array elements
+  ]
+)
