@@ -3,13 +3,13 @@
 #set page(
   paper: "us-letter",
   flipped: true,
-  margin: 1cm,
+  margin: 0.25in,
 )
-#set text(font: "Public Sans", size: 11pt)
+#set text(font: "Public Sans", size: 10pt)
 
-#show: cram-snap.with(
-  title: [CPSC3220 Exam 1],
-)
+#show: cram-snap.with()
+
+#v(-3.5em)
 
 #table(
   columns: (1fr, 1fr),
